@@ -12,10 +12,7 @@ struct trit {
   bool b = false;
 
   inline trit operator=(trit t) { a=t.a; b=t.b; return t; }
-  inline bool operator==(trit t) {
-    if (t.a==a && t.b== b) return true;
-    else return false;
-  }
+  inline bool operator==(trit t) { return (t.a==a && t.b== b);}
 };
 
 const trit trit0 = trit{false, false};
@@ -30,6 +27,8 @@ trit operator+(trit t1, trit t2) {
   if (t == tritF) { return trit0; }
   else { return t; }
 }
+
+trit operator*(trit t, bool c) { return trit{t.a&&c, t.b&&c};}
 
 ostream& operator << (ostream& o, const trit t) {
     if ((t.a == false) && (t.b == false)) o << 0;
@@ -49,9 +48,7 @@ trit* ternary(int num) {
   int r;
   for (int i=1; i<ntrits; i++) {
     r = abs(num % 3);
-    if (r == 0) { trits[i] = trit0; }
-    else if (r == 1) { trits[i] = trit1; }
-    else { trits[i] = trit2; }
+    trits[i] = trit0 * (r == 0) + trit1 * (r == 1) + trit2 * (r == 2);
     num = num / 3;
   }
   return trits;
@@ -73,27 +70,23 @@ int from_trits(trit* t) {
 
   if (t[0] == trit1) { sign = -1; }
   for (int i=1; i<ntrits; i++) {
-    if (t[i] == trit2) {
-      result += sign * 2 * pow(3, i-1);
-    } else if (t[i] == trit1) {
-      result += sign * 1 * pow(3, i-1);
-    }
+    result += sign*1*(t[i] == trit1)*pow(3, i-1) + sign*2*(t[i] == trit2)*pow(3, i-1);
   }
-
   return result;
 }
 
 int singleNumber(vector<int> nums) {
   trit t[ntrits] = { trit0 };
   for (int num: nums) { tritxor(t, num); }
-  // print(t);
+  print(t);
   return from_trits(t);
 }
 
 int main(int argc, char* argv[]) {
 
-  assert (singleNumber(std::vector<int> {2,2,3,2}) == 3);
-  assert (singleNumber(std::vector<int> {0,1,0,1,0,1,99}) == 99);
+  cout << singleNumber(std::vector<int> {2,2,3,2});
+  // assert (singleNumber(std::vector<int> {2,2,3,2}) == 3);
+  // assert (singleNumber(std::vector<int> {0,1,0,1,0,1,99}) == 99);
 
   return 1;
 }
